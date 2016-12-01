@@ -13,6 +13,14 @@ This project inspired by Mestyan et al: http://journals.plos.org/plosone/article
 In summary, by itself, T is the best predictor. By adding VURE, we may approach
 80% R-squared.
 
+## Importantly
+
+* Using domestic boxoffice data, per Box Office Mojo
+* There is a good chunk of missing data, see below
+
+
+
+
 # Methods
 
 * Scrape a wikipedia page for 2015 movie titles.
@@ -20,6 +28,7 @@ In summary, by itself, T is the best predictor. By adding VURE, we may approach
 * Obtain VURE using wikipedia API
 * Combine data with pandas
 * Perform linear regression to obtain R-squared
+
 
 Also, replicate the Mestyan et al data.
 
@@ -44,6 +53,8 @@ If you get `bson` errors, fix with:
 Some wikipedia articles (movies) have missing data. API returned error: "This
 data not yet loaded"
 
+Check `code/*log` files
+
 Some error movies:
 
   * Focus (2001 vs 2015)
@@ -52,4 +63,12 @@ Some error movies:
   * Our Brand Is Crisis (2006), our brand is crisis 2016
   * ? Hotel Transylvania 2 (2015), Hotel Transylvania (franchise)
   * ? Aferim! (2016), Gopo Awards
+  * ETC!
   
+some movies don't have all the views data going back... eg Tangerine: pagevies
+data only goes back 10 days...
+I'm using what is available
+  
+# References
+
+BoxofficemojoAPI from https://github.com/skozilla/BoxOfficeMojo
