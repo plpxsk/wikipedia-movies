@@ -124,6 +124,9 @@ for i in range(len(boxoffice_data)):
   logging.debug("DONE.")
     
 
+logging.debug("Remove nones in edits_users...")
+edits_users = [one for one in edits_users if one is not None]
+
 logging.debug("Saving with dill...")
 with open('../cache/3-edits-users.dill', 'w') as f:
   dill.dump(edits_users, f)
