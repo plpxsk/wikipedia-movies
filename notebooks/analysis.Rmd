@@ -1,0 +1,83 @@
+---
+title: "Analysis of 2015 Movies Data"
+output: html_notebook
+---
+
+# Prepare Data
+```{r, results='hide'}
+library(tidyverse)
+library(magrittr)
+library(lubridate)
+
+## eg: 2015072700 - remove last 2 positions, and convert to date
+to_ymd <- . %>% as.character %>% substr(., 1, nchar(.)-2) %>% ymd
+standardize_title <- . %>% tolower %>% gsub(" \\([^()]+\\)", "", .)
+```
+
+```{r, results='hide', message=FALSE}
+boxoffice <- read_csv("../cache/boxoffice.csv") %>% select(-X1)
+views <- read_csv("../cache/views.csv") %>% select(-X1)
+edits_users <- read_csv("../cache/edits_users.csv") %>% select(-X1)
+```
+
+```{r, results='hide'}
+views$timestamp %<>% to_ymd
+boxoffice$title %<>% standardize_title
+views$title %<>% standardize_title
+edits_users$title %<>% standardize_title
+```
+
+```{r, results='hide'}
+views30 <- views %>%
+    group_by(article) %>%
+    arrange(timestamp) %>%
+    slice(1) %>%
+    ungroup
+
+df1 <- left_join(
+    views30,
+    edits_users %>% select(-end_dt),
+    by="title") 
+```
+
+```{r, results='hide'}
+## check some rows
+## df1 %>% select(title, timestamp, begin_dt) %>% sample_n(10)
+## eg, tangerine
+## views %>% filter(article=="Tangerine")
+```
+
+# Obtain analysis data frame
+```{r, results='hide'}
+df1 %<>% select(title, views, revisions, users) %>% na.omit
+
+df <- df1 %>%
+    left_join(
+        .,
+        boxoffice %>% select(title, domestic, genre, mpaa_rating, production_budget, runtime),
+        by="title")
+```
+# Model: Caveats
+The model results follow. In summary, it seems we CAN make quite good predictions, but there are a few caveats:
+
+* the below predicts DOMESTIC boxoffice revenue based on activity 30 DAYS BEFORE the movie release (usually 30 days. had a few errors where data is from closer, like 10 days before release. to discuss)
+* this is preliminary, since there is a bunch of missing movies (rough guess is 40%), but we still have good results. with some work, we can up this % since the missing data is fixable (to discuss)
+* but there is good news: I was able to easily obtain additional data on things like movie genre and runtime, which provide very good predictions, based on first look! see the second model
+
+
+
+# Model 1
+See the R-squared statistic (ranges from 0 to 1, higher is better)
+
+```{r}
+mod <- lm(domestic ~ views + revisions + users, data=df)
+mod %>% summary
+```
+
+# Model 2
+```{r}
+mod <- lm(domestic ~ views + revisions + users + runtime +
+            factor(genre) + factor(mpaa_rating) + production_budget,
+          data=df)
+mod %>% summary
+```
