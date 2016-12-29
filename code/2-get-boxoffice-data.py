@@ -2,27 +2,27 @@ import wikipedia
 import bs4
 import dill
 import logging
-from boxofficemojoAPI import boxofficemojo as bom
 
-#logging.basicConfig(level=logging.DEBUG)
+
+# logging.basicConfig(level=logging.DEBUG)
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 # get box office data (movie_summary) from list of urls, using bom API object
 def my_get_all_movies(url_dict, bom_object):
-    i=0
+    i = 0
     for key, val in url_dict.items():
         movie = bom_object.get_movie_summary(key)
         movie.clean_data()
         if i % 50 == 0:
             print i
-        i+=1
+        i += 1
         yield movie.data
 
 
 logging.info("dill.load links...")
-with open('../cache/1-boxoffice-links.dill', 'rb') as f:
+with open('cache/1-boxoffice-links.dill', 'rb') as f:
   boxoffice_links = dill.load(f)
 
 
@@ -35,8 +35,8 @@ film_2015_tables = soup.findAll('table', attrs={'class': 'wikitable'})[4:8]
 
 film_titles = []
 for table in film_2015_tables:
-  film_titles.append( [title.text for title in table.findAll('i')] )
-film_titles = sum(film_titles, [])    
+  film_titles.append([title.text for title in table.findAll('i')])
+film_titles = sum(film_titles, [])
 available_films = list(
   set.intersection(set(film_titles), set(boxoffice_links.movie_urls.values())))
 
@@ -53,9 +53,8 @@ print "Final count: ", len(available_movie_urls.items())
 
 logging.info("Downloading box office data for each movie...")
 boxoffice_2015_data = [
-  item for item in my_get_all_movies(available_movie_urls, boxoffice_links)
-  ]
+  item for item in my_get_all_movies(available_movie_urls, boxoffice_links)]
 
-with open('../cache/2-boxoffice-2015-data.dill', 'w') as f:
+with open('cache/2-boxoffice-2015-data.dill', 'w') as f:
   dill.dump(boxoffice_2015_data, f)
 logging.info("DONE!")
