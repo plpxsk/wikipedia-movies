@@ -4,10 +4,6 @@ clean:
 lint:
 	flake8 code/*.py
 
-docs:
-	mkdir -p docs/
-	cp notebooks/*html docs
-
 data: boxoffice-data wikipedia-data csv
 
 boxoffice-data:
@@ -27,8 +23,6 @@ help:
 	@echo "        Remove downloaded data, for fresh download." 
 	@echo "    lint"
 	@echo "        Check style with flake8."
-	@echo "    docs"
-	@echo "        Copy notebook output to docs/ for easy github pages html rendering."
 	@echo "    data"
 	@echo "        Download all data and make CSV files."
 	@echo "    boxoffice-data"
